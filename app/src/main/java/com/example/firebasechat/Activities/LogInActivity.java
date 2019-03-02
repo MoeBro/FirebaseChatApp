@@ -194,8 +194,7 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
     //Getting Users name from facebook
     private void getFacebookUsername (AccessToken newAccessToken)
     {
-
+        
     }
-
 
 }
