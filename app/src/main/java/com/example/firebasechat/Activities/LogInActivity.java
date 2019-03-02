@@ -81,7 +81,6 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
                 //show successfull log in message and switch to chat room list activity
                 Toast.makeText(LogInActivity.this,"Succesfully logged in",Toast.LENGTH_SHORT).show();
                 handleFacebookAccessToken(loginResult.getAccessToken());
-                startActivity(intent);
             }
 
             @Override

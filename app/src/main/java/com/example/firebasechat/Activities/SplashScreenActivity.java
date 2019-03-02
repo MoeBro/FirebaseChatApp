@@ -15,6 +15,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide();
+        //configuring splashscreen
         EasySplashScreen config = new EasySplashScreen(SplashScreenActivity.this)
                 .withFullScreen()
                 .withTargetActivity(LogInActivity.class)
@@ -24,7 +25,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                 .withLogo(R.drawable.icon)
                 .withAfterLogoText("House Of Code Application");
 
-        //finally create the view
+        //create the view for splashscreen
         View easySplashScreenView = config.create();
         setContentView(easySplashScreenView);
 
