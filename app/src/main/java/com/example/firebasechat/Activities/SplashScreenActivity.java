@@ -10,25 +10,19 @@ import com.example.firebasechat.R;
 import gr.net.maroulis.library.EasySplashScreen;
 
 public class SplashScreenActivity extends AppCompatActivity {
-
+    // Using EasySplashScreen library
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        getSupportActionBar().hide();
         EasySplashScreen config = new EasySplashScreen(SplashScreenActivity.this)
                 .withFullScreen()
                 .withTargetActivity(LogInActivity.class)
-                .withSplashTimeOut(4000)
-                .withBackgroundResource(android.R.color.holo_red_light)
-                .withHeaderText("Header")
-                .withFooterText("Copyright 2016")
-                .withBeforeLogoText("My cool company")
-                .withLogo(R.drawable.splash)
-                .withAfterLogoText("Some more details with custom font");
-
-
-        //change text color
-        config.getHeaderTextView().setTextColor(Color.WHITE);
+                .withSplashTimeOut(3000)
+                .withBackgroundResource(android.R.color.white)
+                .withBeforeLogoText("Firebase Chat")
+                .withLogo(R.drawable.icon)
+                .withAfterLogoText("House Of Code Application");
 
         //finally create the view
         View easySplashScreenView = config.create();
