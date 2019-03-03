@@ -5,34 +5,58 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Activities.ChatRoomList"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="Chat Rooms"
+        android:textSize="35dp"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:shadowColor="@android:color/black"
+        android:shadowRadius="1"
+        android:font="@font/segoeui"
+        />
 
     <ListView
         android:id="@+id/chatRoomList"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:isScrollContainer="true">
+        android:isScrollContainer="true"
+        android:layout_marginTop="50dp">
     </ListView>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/signOutButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
         android:src="@drawable/signout"
         android:layout_gravity="end|bottom"
         android:layout_marginRight="10dp"
         android:layout_marginBottom="10dp"
-        android:onClick="signOutButton"/>
+        android:onClick="signOutButton"
+        android:layout_marginEnd="10dp"
+        app:backgroundTint="@android:color/white"
+        app:rippleColor="@android:color/darker_gray"
+        app:fabCustomSize="75dp"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/newRoomButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
         android:src="@drawable/newroombutton"
         android:layout_gravity="end|bottom"
-        android:layout_marginRight="70dp"
+        android:layout_marginRight="100dp"
         android:layout_marginBottom="10dp"
-        android:onClick="newChatRoom"/>
+        android:onClick="newChatRoom"
+        android:layout_marginEnd="100dp"
+        app:backgroundTint="@android:color/white"
+        app:rippleColor="@android:color/darker_gray"
+        app:fabCustomSize="75dp"
+        app:borderWidth="0dp"
+        />
 
 
 </FrameLayout>
