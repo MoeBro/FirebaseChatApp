@@ -7,26 +7,34 @@
     tools:context=".Activities.ChatRoomList"
     android:orientation="vertical"
     >
+<android.support.v4.widget.SwipeRefreshLayout
+    android:id="@+id/swipeRefresh"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <ListView
+        android:id="@+id/chatRoomList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:isScrollContainer="true"
+        android:layout_marginTop="50dp">
+    </ListView>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:text="Chat Rooms"
-        android:textSize="35dp"
+        android:textSize="35sp"
         android:textAlignment="center"
         android:textColor="@android:color/black"
         android:shadowColor="@android:color/black"
-        android:shadowRadius="1"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="2"
         android:font="@font/segoeui"
         />
-
-    <ListView
-        android:id="@+id/chatRoomList"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:isScrollContainer="true"
-        android:layout_marginTop="50dp">
-    </ListView>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/signOutButton"
@@ -57,6 +65,8 @@
         app:fabCustomSize="75dp"
         app:borderWidth="0dp"
         />
+    </FrameLayout>
 
+</android.support.v4.widget.SwipeRefreshLayout>
 
 </FrameLayout>

@@ -1,6 +1,7 @@
 package com.example.firebasechat.Activities;
 
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -25,6 +26,11 @@ public class SplashScreenActivity extends AppCompatActivity {
                 .withLogo(R.drawable.icon)
                 .withAfterLogoText("House Of Code Application");
 
+        Typeface segoeui = Typeface.createFromAsset(getAssets(),"fonts/segoeui.otf");
+        config.getAfterLogoTextView().setTypeface(segoeui);
+        config.getBeforeLogoTextView().setTypeface(segoeui);
+        config.getBeforeLogoTextView().setShadowLayer(2,1,1,Color.parseColor("#000000"));
+        config.getAfterLogoTextView().setShadowLayer(2,1,1,Color.parseColor("#000000"));
         //create the view for splashscreen
         View easySplashScreenView = config.create();
         setContentView(easySplashScreenView);
