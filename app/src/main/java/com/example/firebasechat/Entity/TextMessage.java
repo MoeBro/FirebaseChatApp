@@ -1,15 +1,27 @@
 package com.example.firebasechat.Entity;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
+
+import java.nio.ByteBuffer;
+
 //model for individual messages
-public class Message {
+public class TextMessage {
 
     private String senderName;
     private String dateTime;
     private String messageText;
 
-    public Message(String senderName, String dateTime, String messageText) {
-        this.senderName = messageText;
+
+    public TextMessage(String senderName, String dateTime, String messageText) {
+        this.senderName = senderName;
         this.dateTime = dateTime;
         this.messageText = messageText;
+    }
+
+    public TextMessage(){
+
     }
 
     public String getSenderName() {
@@ -35,4 +47,6 @@ public class Message {
     public void setText(String messageText) {
         this.messageText = messageText;
     }
+
+
 }

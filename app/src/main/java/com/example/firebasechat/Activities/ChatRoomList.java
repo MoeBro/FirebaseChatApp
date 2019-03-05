@@ -121,7 +121,7 @@ public class ChatRoomList extends AppCompatActivity {
 
     public void newChatRoom(View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Enter description");
+        builder.setTitle("Add a new room");
 
         Context context = view.getContext();
         LinearLayout linearLayout = new LinearLayout(context);
