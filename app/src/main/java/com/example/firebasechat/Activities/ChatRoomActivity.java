@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.example.firebasechat.Adapters.MessageAdapter;
 import com.example.firebasechat.Entity.TextMessage;
+import com.example.firebasechat.Notifications.NotificationHandler;
 import com.example.firebasechat.R;
 import com.facebook.AccessToken;
 import com.facebook.Profile;
@@ -42,6 +43,8 @@ public class ChatRoomActivity extends AppCompatActivity {
     FirebaseAuth mFirebaseAuth;
     TextView roomNameTitle;
 
+    private NotificationHandler handler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getSupportActionBar().hide();
@@ -57,6 +60,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         roomNameTitle.setText(roomName);
         dbrootReference = FirebaseDatabase.getInstance().getReference();
         dbMessageReference = dbrootReference.child("ChatroomMessage").child(roomName);
+        handler = new NotificationHandler(this);
         valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -111,7 +115,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
 
-        //joinChatRoom();
+        joinChatRoom();
         messageListView.smoothScrollToPosition(messageListView.getCount());
         dbMessageReference.addListenerForSingleValueEvent(valueEventListener);
 
@@ -134,8 +138,8 @@ public class ChatRoomActivity extends AppCompatActivity {
                                 Iterable<DataSnapshot> children = dataSnapshot.getChildren();
                                 for(DataSnapshot child: children)
                                 {
-                                    
                                     TextMessage messageValue = child.getValue(TextMessage.class);
+                                    sendNotification("New Message:"+roomName,messageValue.getText(),roomName);
                                     TextMessageList.clear();
                                     getDataFromDatabase(dataSnapshot);
                                 }
@@ -165,6 +169,10 @@ public class ChatRoomActivity extends AppCompatActivity {
         messageListView.requestFocus();
     }
 
+    public void sendNotification(String title,String message,String roomName){
+        android.support.v4.app.NotificationCompat.Builder nfb = handler.getC1Notification(title,message,roomName);
+        handler.myManager().notify(1,nfb.build());
+    }
 
 
     public void returnButtonClick(View view) {
