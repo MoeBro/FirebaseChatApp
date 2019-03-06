@@ -11,27 +11,47 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         >
-
-        <ListView
+        <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/messageList"
+            android:id="@+id/messageRecyclerView"
             android:layout_marginTop="35dp"
             android:layout_marginBottom="50dp"
-            android:isScrollContainer="true"
-            android:transcriptMode="alwaysScroll">
-        </ListView>
+            >
+        </android.support.v7.widget.RecyclerView>
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:weightSum="100">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:id="@+id/roomNameHeader"
+        android:textSize="24sp"
+        android:textColor="@android:color/black"
+        android:shadowRadius="1"
+        android:shadowDy="1"
+        android:shadowDx="1"
+        android:textAlignment="center"
+        android:layout_marginRight="10dp"
+        android:layout_weight="95">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="35dp"
-            android:id="@+id/roomNameHeader"
-            android:textSize="24sp"
-            android:textColor="@android:color/black"
-            android:shadowRadius="1"
-            android:shadowDy="1"
-            android:shadowDx="1"
-            android:textAlignment="center"/>
+    </TextView>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:text="Subscribe"
+        android:layout_marginEnd="25dp"
+        android:layout_marginRight="25dp"
+        android:id="@+id/subscribeButton"
+        android:onClick="subButtonClick"
+        />
+
+    </LinearLayout>
+
+            /Textview>
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/returnButton"
             android:layout_width="75dp"

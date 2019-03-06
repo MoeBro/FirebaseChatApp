@@ -16,6 +16,7 @@ import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.Profile;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
@@ -38,6 +39,8 @@ import com.google.firebase.auth.FirebaseAuth.AuthStateListener;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.android.gms.auth.api.Auth;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class LogInActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
 
@@ -49,8 +52,7 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
         FirebaseAuth mAuth;
         private GoogleApiClient mGoogleApiClient;
         private GoogleSignInClient mGoogleSignInClient;
-
-
+        private DatabaseReference database;
 
     @Override
     protected void onStart() {
@@ -60,6 +62,7 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        database = FirebaseDatabase.getInstance().getReference();
         getSupportActionBar().hide();
         mAuth = FirebaseAuth.getInstance();
         super.onCreate(savedInstanceState);
@@ -98,6 +101,8 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth.getCurrentUser() != null){
+                    database.child("Users").child(getUsernameName()).child("username").setValue(getUsernameName());
+                    database.child("Users").child(getUsernameName()).child("first_time").setValue(true);
                     Intent intent = new Intent(LogInActivity.this,ChatRoomList.class);
                     startActivity(intent);
                 }
@@ -114,6 +119,21 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
+    public String getUsernameName()
+    {
+        //set senders name from either google or facebook login
+        String userName = "";
+        mAuth = FirebaseAuth.getInstance();
+        if (AccessToken.getCurrentAccessToken() != null)
+        {
+            userName = Profile.getCurrentProfile().getName();
+        }
+        if (mAuth.getCurrentUser() != null){
+            userName = mAuth.getCurrentUser().getDisplayName();
+        }
+        return userName;
+    }
+
     private void handleFacebookAccessToken(AccessToken token) {
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         mAuth.signInWithCredential(credential)
@@ -121,17 +141,12 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
                             FirebaseUser user = mAuth.getCurrentUser();
-                            //updateUI(true);
                         } else {
-                            // If sign in fails, display a message to the user.
 
-                           ;
-                            //updateUI(false);
                         }
 
-                        // ...
+
                     }
                 });
     }
@@ -153,7 +168,6 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
 
     //Opening Google Log In activity
     private void signIn() {
-        System.out.println("hejhejehej");
         Intent signIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signIntent,RC_SIGN_IN);
     }
@@ -163,10 +177,8 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==RC_SIGN_IN){
-            System.out.println("test2");
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             if(result.isSuccess()){
-                System.out.println("test1");
                 GoogleSignInAccount account = result.getSignInAccount();
                 authWithGoogle(account);
             }
@@ -180,7 +192,8 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
-                    System.out.println("hawewae");
+                    database.child("Users").child(getUsernameName()).child("username").setValue(getUsernameName());
+                    database.child("Users").child(getUsernameName()).child("first_time").setValue(true);
                     startActivity(new Intent(getApplicationContext(),ChatRoomList.class));
                     finish();
                 }
@@ -191,10 +204,6 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
         });
     }
 
-    //Getting Users name from facebook
-    private void getFacebookUsername (AccessToken newAccessToken)
-    {
-        
-    }
+
 
 }

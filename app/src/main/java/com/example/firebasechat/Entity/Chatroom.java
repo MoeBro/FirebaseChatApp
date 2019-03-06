@@ -5,10 +5,17 @@ public class Chatroom {
     private String roomName;
     private String description;
 
+
     public Chatroom(String name, String description){
         this.roomName = name;
         this.description = description;
+
     }
+
+    public Chatroom(){
+
+    }
+
     public String getRoomName() {
         return roomName;
     }
@@ -24,4 +31,5 @@ public class Chatroom {
     public void setDescription(String description) {
         this.description = description;
     }
+
 }
