@@ -1,4 +1,4 @@
-package com.example.firebasechat.viewHolders;
+package com.example.firebasechat.ViewHolders;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;

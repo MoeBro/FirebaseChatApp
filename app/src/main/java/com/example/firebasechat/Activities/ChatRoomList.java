@@ -18,7 +18,7 @@ import android.widget.LinearLayout;
 
 import com.example.firebasechat.Entity.Chatroom;
 import com.example.firebasechat.R;
-import com.example.firebasechat.viewHolders.ChatRoomViewHolder;
+import com.example.firebasechat.ViewHolders.ChatRoomViewHolder;
 import com.facebook.login.LoginManager;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -27,7 +27,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
+import java.sql.Time;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 public class ChatRoomList extends AppCompatActivity {
@@ -46,17 +51,19 @@ public class ChatRoomList extends AppCompatActivity {
 
         getSupportActionBar().hide();
         dbRootReference = FirebaseDatabase.getInstance().getReference();
-        dbChatRoomReference = FirebaseDatabase.getInstance().getReference().child("Chatrooms");
+        Query query = FirebaseDatabase.getInstance().getReference().child("Chatrooms").orderByChild("created");
 
         recyclerView = findViewById(R.id.chatRoomRecyclerView);
 
-        swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.swipeRefresh);
+        swipeRefreshLayout = findViewById(R.id.swipeRefresh);
         linearLayoutManager = new LinearLayoutManager(this);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(linearLayoutManager);
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
 
-        FirebaseRecyclerOptions<Chatroom> options = new FirebaseRecyclerOptions.Builder<Chatroom>().setQuery(dbChatRoomReference, new SnapshotParser<Chatroom>() {
+        FirebaseRecyclerOptions<Chatroom> options = new FirebaseRecyclerOptions.Builder<Chatroom>().setQuery(query, new SnapshotParser<Chatroom>() {
             @NonNull
             @Override
             public Chatroom parseSnapshot(@NonNull DataSnapshot snapshot) {
@@ -65,19 +72,6 @@ public class ChatRoomList extends AppCompatActivity {
         }).build();
 
         adapter = new FirebaseRecyclerAdapter<Chatroom, ChatRoomViewHolder>(options){
-
-            @Override
-            protected void onBindViewHolder(@NonNull ChatRoomViewHolder holder, int position, @NonNull Chatroom model) {
-                holder.setRoomName(model.getRoomName());
-                holder.setDescription(model.getDescription());
-                holder.root.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                    }
-                });
-            }
-
             @NonNull
             @Override
             public ChatRoomViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
@@ -85,10 +79,35 @@ public class ChatRoomList extends AppCompatActivity {
                 return new ChatRoomViewHolder(view);
             }
 
+            @Override
+            protected void onBindViewHolder(@NonNull final ChatRoomViewHolder holder, final int position, @NonNull final Chatroom model) {
+                holder.setRoomName(model.getRoomName());
+                holder.setDescription(model.getDescription());
+                holder.root.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String key = getRef(position).getKey();
+                        Intent intent = new Intent(ChatRoomList.this,ChatRoomActivity.class);
+                        intent.putExtra("RoomName",model.getRoomName());
+                        intent.putExtra("key",key);
+                        ChatRoomList.this.startActivity(intent);
+                    }
+                });
+            }
+
+
+
         };
         recyclerView.setAdapter(adapter);
 
-        //database event listener
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                adapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
     }
 
 
@@ -96,6 +115,12 @@ public class ChatRoomList extends AppCompatActivity {
     protected void onStart(){
         super.onStart();
         adapter.startListening();
+
+    }
+
+    @Override
+    protected void onStop(){
+        super.onStop();
     }
 
 
@@ -118,20 +143,23 @@ public class ChatRoomList extends AppCompatActivity {
                 .setNegativeButton("no",null).show();
     }
 
+    //Creating a new chatroom and inserting it into the firebase database
     public void newChatRoom(View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Add a new room");
-
+        Date currentDate = Calendar.getInstance().getTime();
+        SimpleDateFormat simpleDateTime = new SimpleDateFormat("dd/MM/YYYY HH:mm");
+        final String createdDate = simpleDateTime.format(currentDate);
         Context context = view.getContext();
         LinearLayout linearLayout = new LinearLayout(context);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
 
         final EditText nameBox = new EditText(context);
-        nameBox.setHint("Name");
+        nameBox.setHint("Enter Name");
         linearLayout.addView(nameBox);
 
         final EditText descriptionText = new EditText(context);
-        descriptionText.setHint("Time");
+        descriptionText.setHint("Enter Description");
         linearLayout.addView(descriptionText);
         builder.setView(linearLayout);
         builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
@@ -140,6 +168,7 @@ public class ChatRoomList extends AppCompatActivity {
                 HashMap chatroomMap = new HashMap();
                 chatroomMap.put("Name",nameBox.getText().toString());
                 chatroomMap.put("Description",descriptionText.getText().toString());
+                chatroomMap.put("created", createdDate);
                 dbRootReference.child("Chatrooms").push().setValue(chatroomMap);
             }
         });
