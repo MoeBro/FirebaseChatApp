@@ -101,8 +101,7 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth.getCurrentUser() != null){
-                    database.child("Users").child(getUsernameName()).child("username").setValue(getUsernameName());
-                    database.child("Users").child(getUsernameName()).child("first_time").setValue(true);
+                    //if facebook login successful start chatroomlist activity
                     Intent intent = new Intent(LogInActivity.this,ChatRoomList.class);
                     startActivity(intent);
                 }
@@ -145,8 +144,6 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
                         } else {
 
                         }
-
-
                     }
                 });
     }
@@ -172,7 +169,6 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
         startActivityForResult(signIntent,RC_SIGN_IN);
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -192,8 +188,7 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
-                    database.child("Users").child(getUsernameName()).child("username").setValue(getUsernameName());
-                    database.child("Users").child(getUsernameName()).child("first_time").setValue(true);
+                    //if google sign in is successful go to chatroomlist activity
                     startActivity(new Intent(getApplicationContext(),ChatRoomList.class));
                     finish();
                 }

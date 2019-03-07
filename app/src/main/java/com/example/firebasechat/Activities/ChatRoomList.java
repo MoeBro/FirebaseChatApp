@@ -48,9 +48,10 @@ public class ChatRoomList extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room_list);
-
         getSupportActionBar().hide();
+
         dbRootReference = FirebaseDatabase.getInstance().getReference();
+        //Querying database to get chatrooms
         Query query = FirebaseDatabase.getInstance().getReference().child("Chatrooms").orderByChild("created");
 
         recyclerView = findViewById(R.id.chatRoomRecyclerView);
@@ -63,6 +64,7 @@ public class ChatRoomList extends AppCompatActivity {
         linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
 
+        //making a new chatroom for every item gotten from the query
         FirebaseRecyclerOptions<Chatroom> options = new FirebaseRecyclerOptions.Builder<Chatroom>().setQuery(query, new SnapshotParser<Chatroom>() {
             @NonNull
             @Override
@@ -70,7 +72,7 @@ public class ChatRoomList extends AppCompatActivity {
                 return new Chatroom(snapshot.child("Name").getValue().toString(),snapshot.child("Description").getValue().toString());
             }
         }).build();
-
+        //Making an adapter for the recyclerview using the chatroom viewholder
         adapter = new FirebaseRecyclerAdapter<Chatroom, ChatRoomViewHolder>(options){
             @NonNull
             @Override
@@ -86,20 +88,20 @@ public class ChatRoomList extends AppCompatActivity {
                 holder.root.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        //when clicking on chatroom go to that chatroom
                         String key = getRef(position).getKey();
                         Intent intent = new Intent(ChatRoomList.this,ChatRoomActivity.class);
+                        //send the chatrooms name with the intent to the next activity
                         intent.putExtra("RoomName",model.getRoomName());
                         intent.putExtra("key",key);
                         ChatRoomList.this.startActivity(intent);
                     }
                 });
             }
-
-
-
         };
-        recyclerView.setAdapter(adapter);
 
+        recyclerView.setAdapter(adapter);
+        //refresh layout when swiping down
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -110,21 +112,20 @@ public class ChatRoomList extends AppCompatActivity {
 
     }
 
-
     @Override
     protected void onStart(){
         super.onStart();
         adapter.startListening();
-
     }
 
     @Override
     protected void onStop(){
         super.onStop();
+        adapter.stopListening();
     }
 
-
     //floating sign out button
+    //if user presses yes it signs out
     public void signOutButton(View view) {
         new AlertDialog.Builder(this)
                 .setIcon(android.R.drawable.ic_dialog_alert)

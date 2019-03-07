@@ -64,6 +64,7 @@ public class ChatRoomActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //Getting the profile photo of google user
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         final Uri googleAvatar = account.getPhotoUrl();
 
@@ -76,11 +77,12 @@ public class ChatRoomActivity extends AppCompatActivity {
         //Getting the name of the chatroom from the previous activity
         Intent intent = getIntent();
         roomName = (String) intent.getSerializableExtra("RoomName");
-        roomKey = (String) intent.getSerializableExtra("key");
         roomNameTitle.setText(roomName);
+
+        roomKey = (String) intent.getSerializableExtra("key");
         dbrootReference = FirebaseDatabase.getInstance().getReference();
         dbMessageReference = dbrootReference.child("Chatrooms").child(roomKey);
-
+        //Querying database to get messages
         Query query = FirebaseDatabase.getInstance().getReference().child("Chatrooms").child(roomKey).child("Messages").orderByChild("Date");
 
         recyclerView = findViewById(R.id.messageRecyclerView);
@@ -90,6 +92,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(linearLayoutManager);
 
+        //making a new message for every item gotten from the query
         FirebaseRecyclerOptions<TextMessage> options = new FirebaseRecyclerOptions.Builder<TextMessage>().setQuery(query, new SnapshotParser<TextMessage>() {
             @NonNull
             @Override
@@ -99,14 +102,16 @@ public class ChatRoomActivity extends AppCompatActivity {
             }
         }).build();
 
+        //Making an adapter for the recyclerview using the message viewholder
         adapter = new FirebaseRecyclerAdapter<TextMessage, MessageViewHolder>(options){
             @Override
             protected void onBindViewHolder(@NonNull MessageViewHolder holder, int position, @NonNull TextMessage model) {
                 holder.setMessageName(model.getSenderName());
                 holder.setMessageDate(model.getDateTime());
                 holder.setMessageText(model.getText());
+                //load imageview with google profile picture
+                //Not implemented correctly as it supplies every message with same avatar even if the user did not send it
                 Glide.with(ChatRoomActivity.this).load(googleAvatar).into(holder.messageImage);
-
             }
 
             @NonNull
@@ -116,11 +121,13 @@ public class ChatRoomActivity extends AppCompatActivity {
                 return new MessageViewHolder(view);
             }
         };
+        //setting the recyclerviews adapter to the adapter we just made
         recyclerView.setAdapter(adapter);
 
         handler = new NotificationHandler(this);
 
         //sending messages in the chatroom when pressing enter
+        //Checks if user is subscribed, if not then asks user if they want to subscribe
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 
             @Override
@@ -149,12 +156,13 @@ public class ChatRoomActivity extends AppCompatActivity {
 
                     }
                 });
-
+                fetchSubscribers();
                 sendMessage();
                 return true;
             }
         });
         fetchSubscribers();
+        //sends notifications if the room contains users name as a subscriber
         dbMessageReference.child("Messages").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -169,7 +177,7 @@ public class ChatRoomActivity extends AppCompatActivity {
             }
         });
     }
-
+    //Gets subscribers for room in database and saves them to a list
     public void fetchSubscribers(){
         dbMessageReference.child("Subscribers").addValueEventListener(new ValueEventListener() {
             @Override
@@ -211,7 +219,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         dateMap.put("created",messageDate);
         dbMessageReference.updateChildren(dateMap);
         editText.setText("");
-
+        //hide keyboard after sending message
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
 
@@ -233,12 +241,12 @@ public class ChatRoomActivity extends AppCompatActivity {
         return senderName;
     }
 
-
+    //sending notification using notification handler
     public void sendNotification(String title,String roomName){
         android.support.v4.app.NotificationCompat.Builder nfb = handler.getC1Notification(title,roomName);
         handler.myManager().notify(1,nfb.build());
     }
-
+    //Finish activity on return click
     public void returnButtonClick(View view) {
         finish();
     }
