@@ -1,8 +1,12 @@
 package com.example.firebasechat.Activities;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,9 +17,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.firebasechat.Entity.TextMessage;
 import com.example.firebasechat.Notifications.NotificationHandler;
 import com.example.firebasechat.R;
@@ -24,8 +28,12 @@ import com.facebook.AccessToken;
 import com.facebook.Profile;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.SnapshotParser;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
@@ -42,11 +50,10 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 public class ChatRoomActivity extends AppCompatActivity {
 
 
-
+    ArrayList subscriberList = new ArrayList();
     private String roomName;
     private DatabaseReference dbrootReference,dbMessageReference;
     EditText editText;
-    ValueEventListener valueEventListener;
     FirebaseAuth mFirebaseAuth;
     TextView roomNameTitle;
     String roomKey;
@@ -57,13 +64,15 @@ public class ChatRoomActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        final Uri googleAvatar = account.getPhotoUrl();
 
         getSupportActionBar().hide();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
 
-        editText = (EditText)findViewById(R.id.messageInput);
-        roomNameTitle = (TextView)findViewById(R.id.roomNameHeader);
+        editText = findViewById(R.id.messageInput);
+        roomNameTitle = findViewById(R.id.roomNameHeader);
         //Getting the name of the chatroom from the previous activity
         Intent intent = getIntent();
         roomName = (String) intent.getSerializableExtra("RoomName");
@@ -96,6 +105,8 @@ public class ChatRoomActivity extends AppCompatActivity {
                 holder.setMessageName(model.getSenderName());
                 holder.setMessageDate(model.getDateTime());
                 holder.setMessageText(model.getText());
+                Glide.with(ChatRoomActivity.this).load(googleAvatar).into(holder.messageImage);
+
             }
 
             @NonNull
@@ -114,11 +125,65 @@ public class ChatRoomActivity extends AppCompatActivity {
 
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                dbMessageReference.child("Subscribers").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            System.out.println(dataSnapshot.toString());
+                            if(!dataSnapshot.hasChild(getSenderName())){
+                                System.out.println("DOES NOT EXIST");
+                                AlertDialog dialog = new AlertDialog.Builder(ChatRoomActivity.this)
+                                        .setTitle("Subscribe")
+                                        .setMessage("Do you want to subscribe?")
+                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dbMessageReference.child("Subscribers").child(getSenderName()).setValue(getSenderName());
+                                            }
+                                        }).setNegativeButton("No",null)
+                                        .show();
+                            }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
                 sendMessage();
                 return true;
             }
         });
+        fetchSubscribers();
+        dbMessageReference.child("Messages").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (subscriberList.contains(getSenderName())){
+                    sendNotification("New Message!",roomName);
+                }
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public void fetchSubscribers(){
+        dbMessageReference.child("Subscribers").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds: dataSnapshot.getChildren()){
+                    subscriberList.add(ds.getValue().toString());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override
@@ -141,6 +206,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         messageMap.put("Date",messageDate);
         messageMap.put("Text",messageText);
         dbMessageReference.child("Messages").push().setValue(messageMap);
+        //Update the rooms latest message received date
         HashMap dateMap = new HashMap();
         dateMap.put("created",messageDate);
         dbMessageReference.updateChildren(dateMap);
@@ -162,14 +228,14 @@ public class ChatRoomActivity extends AppCompatActivity {
         }
         if (mFirebaseAuth.getCurrentUser() != null){
             senderName = mFirebaseAuth.getCurrentUser().getDisplayName();
+
         }
         return senderName;
     }
 
 
-
-    public void sendNotification(String title,String message,String roomName){
-        android.support.v4.app.NotificationCompat.Builder nfb = handler.getC1Notification(title,message,roomName);
+    public void sendNotification(String title,String roomName){
+        android.support.v4.app.NotificationCompat.Builder nfb = handler.getC1Notification(title,roomName);
         handler.myManager().notify(1,nfb.build());
     }
 

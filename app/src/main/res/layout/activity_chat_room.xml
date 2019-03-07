@@ -38,16 +38,6 @@
         android:layout_weight="95">
 
     </TextView>
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="end"
-        android:text="Subscribe"
-        android:layout_marginEnd="25dp"
-        android:layout_marginRight="25dp"
-        android:id="@+id/subscribeButton"
-        android:onClick="subButtonClick"
-        />
 
     </LinearLayout>
 

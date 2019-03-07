@@ -43,14 +43,14 @@ public class NotificationHandler extends ContextWrapper {
         return mManager;
     }
 
-    public NotificationCompat.Builder getC1Notification(String title,String message,String roomName){
+    public NotificationCompat.Builder getC1Notification(String title,String roomName){
           Intent resultIntent = new Intent(this, ChatRoomActivity.class);
           resultIntent.putExtra("RoomName",roomName);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,1,resultIntent,PendingIntent.FLAG_UPDATE_CURRENT);
 
         return new NotificationCompat.Builder(getApplicationContext(),channelID)
                 .setContentTitle(title)
-                .setContentText(message)
+                .setContentText(roomName)
                 .setSmallIcon(R.drawable.notificationiconsmall)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent);
